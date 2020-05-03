@@ -16,6 +16,15 @@
   </tr>
 </table>
 
+# JG Birdwatcher Notes
+```
+  # Fastest (Only birds, using tiny)
+  python3 detect.py --source ../coco/files/birds.mp4 --output ../coco/output --save-txt --classes 14 --cfg cfg/yolov3-tiny.cfg --weights ../coco/weights/yolov3-tiny.pt
+
+  # Fast but more accurate (Only birds)
+  python3 detect.py --source ../coco/files/birds.mp4 --output ../coco/output --save-txt --classes 14 --weights ../coco/weights/yolov3-spp-ultralytics.pt
+```
+
 # Introduction
 
 This directory contains PyTorch YOLOv3 software developed by Ultralytics LLC, and **is freely available for redistribution under the GPL-3.0 license**. For more information please visit https://www.ultralytics.com.

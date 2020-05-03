@@ -111,21 +111,25 @@ def detect(save_img=False):
 
             save_path = str(Path(out) / Path(p).name)
             s += '%gx%g ' % img.shape[2:]  # print string
+
+            # Todo: use training data / models that only include birds
+            # in order to remove this ugly check, which just skips over classes that
+            # aren't birds
+            bird_count = 0
+
             if det is not None and len(det):
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
-                # Print results
                 for c in det[:, -1].unique():
                     n = (det[:, -1] == c).sum()  # detections per class
                     s += '%g %ss, ' % (n, names[int(c)])  # add to string
 
+                if names[int(c)] == 'bird':
+                    bird_count = n
+
                 # Write results
                 for *xyxy, conf, cls in det:
-                    if save_txt:  # Write to file
-                        with open(save_path + '.txt', 'a') as file:
-                            file.write(('%g ' * 6 + '\n') % (*xyxy, cls, conf))
-
                     if save_img or view_img:  # Add bbox to image
                         label = '%s %.2f' % (names[int(cls)], conf)
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)])
@@ -138,6 +142,15 @@ def detect(save_img=False):
                 cv2.imshow(p, im0)
                 if cv2.waitKey(1) == ord('q'):  # q to quit
                     raise StopIteration
+
+            if save_txt:  # Write to file
+                # Save the latest bird count into a separate file to be served somehow
+                # Note: the w+ mode which overwrites any existing file
+                with open(save_path + '_current.txt', 'w+') as file:
+                    file.write(('%g' + '\n') % (bird_count))
+
+                with open(save_path + '_history.txt', 'a') as file:
+                    file.write(('%g, %g' + '\n') % (dataset.frame, bird_count))
 
             # Save results (image with detections)
             if save_img:
